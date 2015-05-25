@@ -1,7 +1,7 @@
 /+
 
 ***************************
-Adjustfoil Ver.0.0
+Adjustfoil Ver.0.1
 翼型データベースから引っ張ってきた座標データをXflr5で認識できる形に直すというただそれだけのためのアプリケーション．
 
 2015.5.19
@@ -12,6 +12,10 @@ Adjustfoil Ver.0.0
 2015.5.22
 例外処理実装．
 (R.Hirota)
+
+2015.5.26
+データ並べ替えモードと形式変換モードの選択機能追加．
+バグ修正．
 ***************************
 
 ToDo
@@ -29,68 +33,84 @@ import std.stdio,
 	   std.string,
 	   std.conv;
 
-void main() {
+void main(){
 target: 
 	write("\nFile open: ");
 	auto filename = chomp(readln());	//define a file.
-	if(exists(filename)){		//check file name.
-		}else{
-			writeln("Error: file can not be opend");
+
+	if(!exists(filename)){		//check file name.
+		writeln("Error: file can not be opend");
 target2: 
-			write("Continue? (y/n): ");
-			string ans;
-			ans = chomp(readln());
-			if(ans == "y"){
+		write("Continue? (y/n): ");
+		string ans1;
+		ans1 = chomp(readln());
+		switch(ans1){
+			case "y" : 
 				goto target;
-			}else if(ans == "n"){
+			case "n" : 
 				return;
-			}else{
+			default : 
 				writeln("Error: unexpected input");
 				goto target2;
+		}
+	}
+{
+	auto file = File(filename, "r");
+	write("\nStart line (0 origin): ");
+	int start = to!(int)(chomp(readln()));  //define the value start line.
+
+	write("\nValue form: ");
+	string form = chomp(readln());	//define the value form.
+	string foilname = file.readln();	//get the foil name.
+
+	for(int i = 0; i < start - 1; i++){
+		file.byLine.popFront();     // empty lines remove.
+	}
+
+target3:
+	write("\nSelect mode (o/f)\n -o ... adjust order\n -f ... adjust format\n\n: ");
+	string ans2;
+	ans2 = chomp(readln()); 
+	float x = void, y = void;
+	float[] x_od, y_od;
+	switch(ans2){
+		case "o" : // adjust order mode
+			int count = 0,
+				border,
+				flag = 0;
+			file.byLine.popFront();  
+			while (file.readf(form, &x, &y)){
+				if(x == 1 && flag == 0){
+					border = count;
+					flag = 1;
+				}
+				x_od ~= x;
+				y_od ~= y;
+				file.byLine.popFront();     // 1 line remove.
+				count++;	
 			}
-		}
-	{
-		auto file = File(filename, "r");
+			float num1, num2;
+			for(int i = 0; i < border/2; i++){
+				num1 = x_od[i];
+				x_od[i] = x_od[border - i];
+				x_od[border - i] = num1;
 
-//		write("\nSelect mode (a or b)\n - a ... cor")
-		write("\nStart line (0 origin): ");
-		int start = to!(int)(chomp(readln()));  //define the value start line.
-
-		write("\nValue form: ");
-		string form = chomp(readln());	//define the value form.
-		string foilname = file.readln();	//get the foil name.
-
-		for(int i = 0; i < start; i++){
-			file.byLine.popFront();     // empty lines remove.
-		}
-
-		float x = void, y = void;
-		float[] x_od, y_od;
-		int count = 0,
-			border,
-			flag = 0;
-
-		while (file.readf(form, &x, &y)){
-			if(x == 1 && flag == 0){
-				border = count;
-				flag = 1;
+				num2 = y_od[i];
+				y_od[i] = y_od[border - i];
+				y_od[border - i] = num2;
 			}
-			x_od ~= x;
-			y_od ~= y;
-			file.byLine.popFront();     // 1 line remove.
-			count++;	
-		}
-
-		float num1, num2;
-		for(int i = 0; i < border/2; i++){
-			num1 = x_od[i];
-			x_od[i] = x_od[border - i];
-			x_od[border - i] = num1;
-
-			num2 = y_od[i];
-			y_od[i] = y_od[border - i];
-			y_od[border - i] = num2;
-		}
+			break;
+		case "f" : //adjust format mode
+			while (file.readf(form, &x, &y)){
+				x_od ~= x;
+				y_od ~= y;
+				file.byLine.popFront();     // 1 line remove.	
+			}
+			break;
+		default :
+			writeln("Error: unexpected input");
+			goto target3;
+	}
 
 		write("\nNew file name: ");
 		auto newfilename = chomp(readln());	//define a file.
@@ -102,23 +122,22 @@ target2:
 			for(k = 0; k < x_od.length; k++){
 				file2.writef(" %5f\t%5f\n", x_od[k], y_od[k]);	
 			}
-
-		writeln("\n...done \n");
-
+			writeln("\n...done \n");
 		}
 	}
 
-target3: 
+target4: 
 	write("Continue? (y/n): ");
 	string ans;
 	ans = chomp(readln());
-	if(ans == "y"){
-		goto target;
-	}else if(ans == "n"){
-		return;
-	}else{
-		write("Error: unexpected input");
-		goto target3;
+	switch(ans){
+		case "y" : 
+			goto target;
+		case "n" : 
+			return;
+		default :
+			writeln("Error: unexpected input");
+			goto target4;
 	}
 }
 
