@@ -1,7 +1,7 @@
 /+
 
 ***************************
-Ajustfoil Ver.0.0
+Adjustfoil Ver.0.0
 翼型データベースから引っ張ってきた座標データをXflr5で認識できる形に直すというただそれだけのためのアプリケーション．
 
 2015.5.19
@@ -30,12 +30,14 @@ import std.stdio,
 	   std.conv;
 
 void main() {
-	target: write("\nFile open: ");
+target: 
+	write("\nFile open: ");
 	auto filename = chomp(readln());	//define a file.
 	if(exists(filename)){		//check file name.
 		}else{
 			writeln("Error: file can not be opend");
-			target2: write("Continue? (y/n): ");
+target2: 
+			write("Continue? (y/n): ");
 			string ans;
 			ans = chomp(readln());
 			if(ans == "y"){
@@ -50,6 +52,7 @@ void main() {
 	{
 		auto file = File(filename, "r");
 
+//		write("\nSelect mode (a or b)\n - a ... cor")
 		write("\nStart line (0 origin): ");
 		int start = to!(int)(chomp(readln()));  //define the value start line.
 
@@ -105,7 +108,8 @@ void main() {
 		}
 	}
 
-	target3: write("Continue? (y/n): ");
+target3: 
+	write("Continue? (y/n): ");
 	string ans;
 	ans = chomp(readln());
 	if(ans == "y"){
