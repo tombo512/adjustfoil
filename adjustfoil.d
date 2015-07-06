@@ -90,8 +90,9 @@ target3:
 				file.byLine.popFront();     // 1 line remove.
 				count++;	
 			}
+
 			float num1, num2;
-			for(int i = 0; i < border/2; i++){
+			for(int i = 0; i < (cast(float) border/2); i++){
 				num1 = x_od[i];
 				x_od[i] = x_od[border - i];
 				x_od[border - i] = num1;
@@ -101,6 +102,7 @@ target3:
 				y_od[border - i] = num2;
 			}
 			break;
+			
 		case "f" : //adjust format mode
 			while (file.readf(form, &x, &y)){
 				x_od ~= x;
@@ -112,7 +114,6 @@ target3:
 			writeln("Error: unexpected input");
 			goto target3;
 	}
-
 		write("\nNew file name: ");
 		auto newfilename = chomp(readln());	//define a file.
 
@@ -125,6 +126,7 @@ target3:
 			}
 			writeln("\n...done \n");
 		}
+		
 	}
 
 target4: 
@@ -141,10 +143,4 @@ target4:
 			goto target4;
 	}
 }
-
-
-
-
-
-
 
