@@ -7,9 +7,9 @@ UIUC Airfoil Data Site などからダウンロードした翼型の座標ファ
 
 ##使用方法
 
-変換したいファイルが存在するディレクトリにソースコード一式をコピーしてください．
+変換したいファイルが存在するディレクトリに移動してください．
 
-	./adjustfoil
+	adjustfoil
 
 で起動します．
 
@@ -60,5 +60,13 @@ UIUC Airfoil Data Site などからダウンロードした翼型の座標ファ
 	New file name:
 
 生成する新しいファイル名を入力してください．拡張子は.datとしてください．
+
+##インストール
+	./configure
+	make
+	make install
+
+##環境
+Unix環境
 
 
