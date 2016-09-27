@@ -1,10 +1,14 @@
 /+
 
 ***************************
-Adjustfoil Ver.1.0.1
+Adjustfoil Ver.1.0.2
 翼型データベースから引っ張ってきた座標データをXflr5で認識できる形に直すというただそれだけのためのアプリケーション．
 
-製作者:cristappj
+
+2016/9/27
+CSVを出力ファイル形式として選択できるよう改良．CAD用にどうぞ．
+
+製作者:@tombo512
 ***************************
 
 +/
@@ -18,7 +22,6 @@ void main(){
 target: 
 	write("\nFile open: ");
 	auto filename = chomp(readln());	//define a file.
-
 	if(!exists(filename)){		//check file name.
 		writeln("Error: file can not be opend");
 target2: 
@@ -39,15 +42,12 @@ target2:
 	auto file = File(filename, "r");
 	write("\nStart line (0 origin): ");
 	int start = to!(int)(chomp(readln()));  //define the value start line.
-
 	write("\nValue form: ");
 	string form = chomp(readln());	//define the value form.
 	string foilname = file.readln();	//get the foil name.
-
 	for(int i = 0; i < start - 1; i++){
 		file.byLine.popFront();     // empty lines remove.
 	}
-
 target3:
 	write("\nSelect mode (o/f)\n -o ... adjust order\n -f ... adjust format\n\n: ");
 	string ans2;
@@ -70,7 +70,6 @@ target3:
 				file.byLine.popFront();     // 1 line remove.
 				count++;	
 			}
-
 			float num1, num2;
 			for(int i = 0; i < (cast(float) border/2); i++){
 				num1 = x_od[i];
@@ -81,8 +80,7 @@ target3:
 				y_od[i] = y_od[border - i];
 				y_od[border - i] = num2;
 			}
-			break;
-			
+			break;		
 		case "f" : //adjust format mode
 			while (file.readf(form, &x, &y)){
 				x_od ~= x;
@@ -94,22 +92,36 @@ target3:
 			writeln("Error: unexpected input");
 			goto target3;
 	}
+target4:
 		write("\nNew file name: ");
 		auto newfilename = chomp(readln());	//define a file.
-
+		write("\nSelect file type (x/c)\n -x ... for Xflr\n -c ... CSV\n\n: ");
+		string ans3;
+		ans3 = chomp(readln());
 		{
 			auto file2 = File(newfilename, "w");
-			file2.writef(foilname);
 			int k = 0;
-			for(k = 0; k < x_od.length; k++){
-				file2.writef(" %5f\t%5f\n", x_od[k], y_od[k]);	
+			switch(ans3){
+				case "x" : //Xflr mode
+					file2.writef(foilname);
+					for(k = 0; k < x_od.length; k++){
+						file2.writef(" %5f\t%5f\n", x_od[k], y_od[k]);	
+					}
+					writeln("\n...done \n");
+					break;
+				case "c" : //CSV mode
+					for(k = 0; k < x_od.length; k++){
+						file2.writef("%5f,%5f\n", x_od[k], y_od[k]);	
+					}
+					writeln("\n...done \n");
+					break;
+				default :
+					writeln("Error: unexpected input");
+					goto target4;
 			}
-			writeln("\n...done \n");
 		}
-		
 	}
-
-target4: 
+target5: 
 	write("Continue? (y/n): ");
 	string ans;
 	ans = chomp(readln());
@@ -120,7 +132,7 @@ target4:
 			return;
 		default :
 			writeln("Error: unexpected input");
-			goto target4;
+			goto target5;
 	}
 }
 
